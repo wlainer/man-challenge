@@ -1,0 +1,342 @@
+swagger: "2.0"
+info:
+  description: "API to query installable and incompatible features on trucks."
+  version: "1.0.0"
+  title: "MAN FOTA Challenge"
+host: "localhost:8080"
+tags:
+  - name: "fota"
+    description: "Query possible features per vehicle and possible vehicles per feature"
+paths:
+  /fota/vehicles/{vin}/installable:
+    get:
+      tags:
+        - "fota"
+      summary: "Find installable features by VIN"
+      description: "gives all the features that can be installed for the corresponding vin"
+      operationId: "getInstallable"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "vin"
+          in: "path"
+          description: "Vehicle identification number"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Feature'
+        500:
+          description: "Internal Error"
+          schema:
+            $ref: '#/definitions/Error'
+
+  /fota/vehicles/{vin}/incompatible:
+    get:
+      tags:
+        - "fota"
+      summary: "Find incompatible features by VIN"
+      description: "gives all the features that cannot be installed for the corresponding vin"
+      operationId: "getIncompatible"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "vin"
+          in: "path"
+          description: "Vehicle identification number"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Feature'
+        500:
+          description: "Internal Error"
+          schema:
+            $ref: '#/definitions/Error'
+
+  /fota/vehicles/{vin}:
+    get:
+      tags:
+        - "fota"
+      summary: "Find all features by VIN"
+      description: "gives all features that can/cannot be installed for the corresponding vin"
+      operationId: "getFeatures"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "vin"
+          in: "path"
+          description: "Vehicle identification number"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: '#/definitions/VehicleFeatures'
+        500:
+          description: "Internal Error"
+          schema:
+            $ref: '#/definitions/Error'
+
+  /fota/vehicles:
+    get:
+      tags:
+        - "fota"
+      summary: "Find all vehicles"
+      description: "returns a list of all vehicles"
+      operationId: "getVehicles"
+      parameters:
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: size
+          type: integer
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: object
+            $ref: '#/definitions/Vehicles'
+
+  /fota/features/{feature}/installable:
+    get:
+      tags:
+        - "fota"
+      summary: "Find installable VIN's by feature code"
+      description: "gives all the vins that can install the corresponding feature"
+      operationId: "getVinInstallable"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "feature"
+          in: "path"
+          description: "Correspondent feature code"
+          required: true
+          type: "string"
+          format: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Vehicle'
+        500:
+          description: "Internal Error"
+          schema:
+            $ref: '#/definitions/Error'
+
+  /fota/features/{feature}/incompatible:
+    get:
+      tags:
+        - "fota"
+      summary: "Find incompatible VIN's by feature code"
+      description: "gives all the vins that cannot install the corresponding feature"
+      operationId: "getVinIncompatible"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "feature"
+          in: "path"
+          description: "Correspondent feature code"
+          required: true
+          type: "string"
+          format: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Vehicle'
+        500:
+          description: "Internal Error"
+          schema:
+            $ref: '#/definitions/Error'
+
+  /fota/features/{feature}:
+    get:
+      tags:
+        - "fota"
+      summary: "Find all VIN's by feature code"
+      description: "gives all the vins that can install the corresponding feature"
+      operationId: "getAllVin"
+      produces:
+        - "application/json"
+      parameters:
+        - name: "feature"
+          in: "path"
+          description: "Correspondent feature code"
+          required: true
+          type: "string"
+          format: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: '#/definitions/FeatureVINs'
+        500:
+          description: "Internal Error"
+          schema:
+            $ref: '#/definitions/Error'
+
+  /fota/features:
+    get:
+      tags:
+        - "fota"
+      summary: "Find all features"
+      description: "returns a list of all feature codes"
+      operationId: "getAllFeatures"
+      parameters:
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: size
+          type: integer
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: '#/definitions/Features'
+definitions:
+  FeatureVINs:
+    type: object
+    properties:
+      compatibleVehicles:
+        type: array
+        items:
+          $ref: '#/definitions/Vehicle'
+      incompatibleVehicles:
+        type: array
+        items:
+          $ref: '#/definitions/Vehicle'
+
+  VehicleFeatures:
+    type: object
+    properties:
+      compatible:
+        type: array
+        items:
+          $ref: '#/definitions/Feature'
+      incompatible:
+        type: array
+        items:
+          $ref: '#/definitions/Feature'
+
+  Vehicle:
+    type: object
+    properties:
+      identification:
+        type: string
+
+  Feature:
+    type: object
+    properties:
+      identification:
+        type: string
+
+  Error:
+    type: object
+    properties:
+      timestamp:
+        type: string
+      status:
+        type: integer
+      error:
+        type: string
+      message:
+        type: string
+      path:
+        type: string
+
+  Vehicles:
+    allOf:
+      - $ref: '#/definitions/Page'
+      - properties:
+          content:
+            type: array
+            items:
+              $ref: '#/definitions/Vehicle'
+
+  Features:
+    allOf:
+      - $ref: '#/definitions/Page'
+      - properties:
+          content:
+            type: array
+            items:
+              $ref: '#/definitions/Feature'
+
+  Page:
+    type: object
+    properties:
+      totalElements:
+        type: integer
+      last:
+        type: boolean
+      totalPages:
+        type: integer
+      first:
+        type: boolean
+      numberOfElement:
+        type: integer
+      size:
+        type: integer
+      number:
+        type: integer
+      empty:
+        type: boolean
+      pageable:
+        type: object
+        $ref: '#/definitions/Pageable'
+      sort:
+        type: object
+        $ref: '#/definitions/Sort'
+
+  Pageable:
+    type: object
+    properties:
+      pageNumber:
+        type: integer
+      pageSize:
+        type: integer
+      offset:
+        type: integer
+      paged:
+        type: boolean
+      unpaged:
+        type: boolean
+
+  Sort:
+    type: object
+    properties:
+      unsorted:
+        type: boolean
+      sorted:
+        type: boolean
+      empty:
+        type: boolean
+
+
+
